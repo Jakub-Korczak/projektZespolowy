@@ -94,10 +94,14 @@ public class WifiScan extends AppCompatActivity implements LocationListener {
                 adapter.notifyDataSetChanged();
             }
             //creating object to save in database
-            ScanResult res = results.get(0);
-            LocationData loc_data = new LocationData(latitude,longitude,res.BSSID);
             DataBaseHelper dataBaseHelper = new DataBaseHelper(WifiScan.this);
-            dataBaseHelper.addOne(loc_data);
+            for (int i = 0; i < results.size(); i++)
+            {
+                ScanResult res = results.get(i);
+                LocationData loc_data = new LocationData(latitude,longitude,res.BSSID);
+                dataBaseHelper.addOne(loc_data);
+            }
+
         }
     };
 

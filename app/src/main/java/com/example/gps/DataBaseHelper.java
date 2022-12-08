@@ -16,6 +16,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_AP_BSSID = "AP_BSSID";
     public static final String COLUMN_AP_LATITUDE = "AP_LATITUDE";
     public static final String COLUMN_AP_LONGITUDE = "AP_LONGITUDE";
+    public static final String COLUMN_ID = "ID";
 
     public DataBaseHelper(@Nullable Context context) {
         super(context, "LocationData.db", null, 1);
@@ -23,7 +24,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String createTableStatement = "CREATE TABLE " + LOCATION_DATA_TABLE + " (" + COLUMN_AP_BSSID + " TEXT PRIMARY KEY, " + COLUMN_AP_LATITUDE + " REAL, " + COLUMN_AP_LONGITUDE + " REAL)";
+        String createTableStatement = "CREATE TABLE " + LOCATION_DATA_TABLE + " (" + COLUMN_ID + "INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_AP_BSSID + " TEXT, " + COLUMN_AP_LATITUDE + " REAL, " + COLUMN_AP_LONGITUDE + " REAL)";
         sqLiteDatabase.execSQL(createTableStatement);
     }
 
@@ -52,6 +53,28 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public List<LocationData> selectAll(){
         List<LocationData> returnList = new ArrayList<>();
         String queryString = "SELECT * FROM "+ LOCATION_DATA_TABLE;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(queryString, null);
+        if(cursor.moveToFirst()){
+            do {
+                String locationDataBSSID = cursor.getString(0);
+                double locationDataLatitude = cursor.getDouble(1);
+                double locationDataLongitude = cursor.getDouble(2);
+                LocationData newLocData = new LocationData(locationDataLatitude,locationDataLongitude,locationDataBSSID);
+                returnList.add(newLocData);
+            }while(cursor.moveToNext());
+        }
+        else{
+            //failure. Do nothing
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+    }
+
+    public List<LocationData> selectWhereBSSID(String bssid){
+        List<LocationData> returnList = new ArrayList<>();
+        String queryString = "SELECT * FROM "+ LOCATION_DATA_TABLE + "WHERE " +COLUMN_AP_BSSID + " = " + bssid +";";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(queryString, null);
         if(cursor.moveToFirst()){
